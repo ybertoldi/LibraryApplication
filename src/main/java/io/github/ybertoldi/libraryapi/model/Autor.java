@@ -1,11 +1,8 @@
 package io.github.ybertoldi.libraryapi.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -13,14 +10,15 @@ import java.util.UUID;
 public class Autor {
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.UUID)
     UUID id;
 
-    @Column(name = "nome")
+    @Column(name = "nome", length = 100, nullable = false)
     String nome;
 
-    @Column(name = "data_nascimento")
-    Date dataNascimento;
+    @Column(name = "data_nascimento", nullable = false)
+    LocalDate dataNascimento;
 
-    @Column(name = "nacionalidade")
+    @Column(name = "nacionalidade", length = 30)
     String nacionalidade;
 }

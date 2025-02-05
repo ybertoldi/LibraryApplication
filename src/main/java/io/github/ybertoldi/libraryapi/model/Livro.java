@@ -2,7 +2,7 @@ package io.github.ybertoldi.libraryapi.model;
 
 import jakarta.persistence.*;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -10,23 +10,23 @@ import java.util.UUID;
 public class Livro {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
     UUID id;
 
-    @Column(name = "isbn")
+    @Column(name = "isbn", length = 20, nullable = false)
     String isbn;
 
-    @Column(name = "titulo")
+    @Column(name = "titulo", length = 150, nullable = false)
     String titulo;
 
-    @Column(name = "data_publicacao")
-    Date dataPublicacao;
+    @Column(name = "data_publicacao", nullable = false)
+    LocalDate dataPublicacao;
 
-    @Column(name = "genero")
+    @Column(name = "genero", length = 30, nullable = false)
     String genero;
 
-    @Column(name = "preco")
+    @Column(name = "preco", nullable = false)
     double preco;
 
 
