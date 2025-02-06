@@ -19,9 +19,9 @@ public class AutorRepositoryTest {
     @Test
     public void salvarTest(){
         Autor autor = new Autor();
-        autor.setNome("maria");
-        autor.setNacionalidade("português");
-        autor.setDataNascimento(LocalDate.of(1951,10,20));
+        autor.setNome("H. G. Wells");
+        autor.setNacionalidade("inglês");
+        autor.setDataNascimento(LocalDate.of(1866,8,21));
         System.out.println(autor.getId());
 
         var autorSalvo = repository.save(autor);

@@ -32,9 +32,9 @@ public class Livro {
     @Column(name = "preco", nullable = false)
     double preco;
 
-    @ManyToOne
+    @ManyToOne//(cascade = CascadeType.ALL) recomendado não usar. Descomentar para usar no LivroRepositoryTest
     @JoinColumn(name = "id_autor")
-    Autor autor;
+    private Autor autor;
 
 }
 
