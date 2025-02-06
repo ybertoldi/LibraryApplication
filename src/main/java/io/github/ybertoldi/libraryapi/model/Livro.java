@@ -32,9 +32,21 @@ public class Livro {
     @Column(name = "preco", nullable = false)
     double preco;
 
-    @ManyToOne//(cascade = CascadeType.ALL) recomendado não usar. Descomentar para usar no LivroRepositoryTest
+    @ManyToOne(
+            //cascade = CascadeType.ALL,  -> recomendado não usar. Descomentar para usar no LivroRepositoryTest
+            //fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "id_autor")
     private Autor autor;
+
+    public void setTo(String titulo, String isbn, GeneroLivro genero, Autor autor, double preco, LocalDate dataPublicacao){
+        this.titulo = titulo;
+        this.genero = genero;
+        this.autor = autor;
+        this.dataPublicacao = dataPublicacao;
+        this.isbn = isbn;
+        this.preco = preco;
+    }
 
 }
 

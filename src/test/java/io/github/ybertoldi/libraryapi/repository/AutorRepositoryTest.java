@@ -1,11 +1,14 @@
 package io.github.ybertoldi.libraryapi.repository;
 
 import io.github.ybertoldi.libraryapi.model.Autor;
+import io.github.ybertoldi.libraryapi.model.GeneroLivro;
+import io.github.ybertoldi.libraryapi.model.Livro;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +18,9 @@ public class AutorRepositoryTest {
 
     @Autowired
     AutorRepository repository;
+
+    @Autowired
+    LivroRepository livroRepository;
 
     @Test
     public void salvarTest(){
@@ -67,5 +73,33 @@ public class AutorRepositoryTest {
         Autor autor = repository.findAll().getFirst();
         System.out.println("Autor deletado: " + autor);
         repository.delete(autor);
+    }
+
+    @Test
+    public void salvarComLivrosTeste(){
+        Autor autor = new Autor();
+        autor.setNome("Liev Tolstói");
+        autor.setNacionalidade("russo");
+        autor.setDataNascimento(LocalDate.of(1828, 9, 9));
+
+
+        List<Livro> listaLivro = new ArrayList<>();
+        listaLivro.add(new Livro());
+        listaLivro.getFirst().setTo("Guerra e Paz", "1232-312-42", GeneroLivro.FICCAO, autor, 100.20d, LocalDate.of(1880,9,10));
+        listaLivro.add(new Livro());
+        listaLivro.get(1).setTo("Anna Karenina", "112-312-23", GeneroLivro.FICCAO, autor, 130.00d, LocalDate.of(1870, 2, 13));
+        autor.setLivros(listaLivro);
+
+        repository.save(autor);
+        System.out.println("O id do autor é: " + autor.getId());
+        livroRepository.saveAll(autor.getLivros());
+
+    }
+
+    @Test
+    public void listarLivrosAutor(){
+        Autor autor = repository.findAll().get(2);
+        System.out.println("Livros de " + autor.getNome());
+        livroRepository.findByAutor(autor).forEach(System.out::println);
     }
 }
