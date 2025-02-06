@@ -1,12 +1,15 @@
 package io.github.ybertoldi.libraryapi.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "autor", schema = "public")
+@Data
 public class Autor {
     @Id
     @Column(name = "id")
@@ -19,6 +22,9 @@ public class Autor {
     @Column(name = "data_nascimento", nullable = false)
     LocalDate dataNascimento;
 
-    @Column(name = "nacionalidade", length = 30)
+    @Column(name = "nacionalidade", length = 50)
     String nacionalidade;
+
+    @OneToMany(mappedBy = "autor")
+    List<Livro> livros;
 }

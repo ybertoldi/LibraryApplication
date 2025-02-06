@@ -1,12 +1,14 @@
 package io.github.ybertoldi.libraryapi.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = "livro", schema = "public")
+@Data
 public class Livro {
 
     @Id
@@ -23,16 +25,20 @@ public class Livro {
     @Column(name = "data_publicacao", nullable = false)
     LocalDate dataPublicacao;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "genero", length = 30, nullable = false)
-    String genero;
+    GeneroLivro genero;
 
     @Column(name = "preco", nullable = false)
     double preco;
 
-
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "autor", referencedColumnName = "id")
-    @Column(name = "id_autor")
+    @ManyToOne
+    @JoinColumn(name = "id_autor")
     Autor autor;
 
 }
+
+
+
+
+
