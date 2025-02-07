@@ -100,6 +100,10 @@ public class AutorRepositoryTest {
     public void listarLivrosAutor(){
         Autor autor = repository.findAll().get(2);
         System.out.println("Livros de " + autor.getNome());
-        livroRepository.findByAutor(autor).forEach(System.out::println);
+        for (Livro livro : livroRepository.findByAutor(autor)) {
+            System.out.println(livro);
+        }
     }
+
+
 }

@@ -2,6 +2,7 @@ package io.github.ybertoldi.libraryapi.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "livro", schema = "public")
 @Data
+@ToString(exclude = "autor")
 public class Livro {
 
     @Id
@@ -34,7 +36,7 @@ public class Livro {
 
     @ManyToOne(
             //cascade = CascadeType.ALL,  -> recomendado não usar. Descomentar para usar no LivroRepositoryTest
-            //fetch = FetchType.LAZY
+            fetch = FetchType.LAZY
     )
     @JoinColumn(name = "id_autor")
     private Autor autor;

@@ -26,6 +26,6 @@ public class Autor {
     String nacionalidade;
 
     @Transient
-//    @OneToMany(mappedBy = "autor")
+    @OneToMany(mappedBy = "autor")
     List<Livro> livros;
 }

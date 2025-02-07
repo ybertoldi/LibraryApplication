@@ -1,13 +1,23 @@
 package io.github.ybertoldi.libraryapi.repository;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonWriter;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.model.GeneroLivro;
 import io.github.ybertoldi.libraryapi.model.Livro;
+import io.github.ybertoldi.libraryapi.model.LocalDateTypeAdapter;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
@@ -61,5 +71,49 @@ public class LivroRepositoryTest {
     public void atualizarTeste(){
         //ver no curso
     }
+
+    @Test
+    void pesquisaPorTituloTeste(){
+        List<Livro> livros = repository.findByTitulo("Guerra e Paz");
+        for (Livro livro : livros) {
+            System.out.println(livro.getIsbn());
+        }
+    }
+
+    @Test
+    void listarLivrosComQuery(){
+        List<Livro> livros = repository.listarTodosLivros();
+        for (Livro livro : livros) {
+            System.out.println(livro);
+        }
+    }
+
+    @Test
+    void listarLivroGenero(){
+        List<Livro> livros = repository.listarLivroPorGenero(GeneroLivro.FICCAO, "genero");
+        livros.forEach(System.out::println);
+    }
+
+    @Test
+    void listarLivroGeneroPositional(){
+        List<Livro> livros = repository.listarLivroPorGeneroPositionalParam(GeneroLivro.FICCAO, "genero");
+        livros.forEach(System.out::println);
+    }
+
+    @Test
+    void salvarEmJsonTeste() throws IOException {
+        List<Livro> livros = repository.findAll();
+        for (Livro livro : livros) {
+            livro.setAutor(repository.acharAutorDoLivro(livro));
+        }
+        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+                .setPrettyPrinting()
+                .create();
+
+        gson.toJson(livros, new FileWriter(path + "\\livrosExcluidos.json"));
+    }
+
 
 }
