@@ -47,7 +47,6 @@ public class DatabaseConfiguration {
         hc.setPoolName("library-db-pool");
         hc.setMaxLifetime((10 * 60) * 1000); //tempo máximo de conexão (10 minutos, no caso)
         hc.setConnectionTimeout( (int) (1.6 * 60) * 1000); //tempo máximo de o hikari gastará para tentar abrir uma conexão
-        hc.setConnectionTestQuery("select 1");
 
         return new HikariDataSource(hc);
     }

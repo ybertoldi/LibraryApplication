@@ -3,6 +3,7 @@ package io.github.ybertoldi.libraryapi.repository;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.model.GeneroLivro;
 import io.github.ybertoldi.libraryapi.model.Livro;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -49,7 +50,7 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
             """)
     List<Livro> listarLivroPorGeneroPositionalParam(GeneroLivro genero, String paramOrdenacao);
 
-
+    @Transactional
     @Modifying
     @Query("""
             delete
@@ -57,4 +58,12 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
             where genero = ?1
             """)
     void deleteByGenero(GeneroLivro generoLivro);
+
+
+    @Query("""
+            select l 
+            from Livro l 
+            join fetch l.autor
+            """)
+    List<Livro> todosOsLivrosComAutor();
 }
