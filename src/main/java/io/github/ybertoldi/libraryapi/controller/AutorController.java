@@ -1,10 +1,12 @@
 package io.github.ybertoldi.libraryapi.controller;
 
 import io.github.ybertoldi.libraryapi.controller.dto.ErroResposta;
+import io.github.ybertoldi.libraryapi.exceptions.OperacaoNaoPermitiaException;
 import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.controller.dto.AutorDTO;
 import io.github.ybertoldi.libraryapi.service.AutorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,14 +20,10 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("autores")
+@RequiredArgsConstructor
 public class AutorController {
 
-    @Autowired
     private final AutorService service;
-
-    public AutorController(AutorService service) {
-        this.service = service;
-    }
 
     @PostMapping
     public ResponseEntity<Object> cadastroDeAutor(@RequestBody AutorDTO autor){
@@ -69,17 +67,22 @@ public class AutorController {
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deletaAutor(@PathVariable("id") String id){
-        UUID uuid = UUID.fromString(id);
-        Optional<Autor> optionalAutor = service.obterPorId(uuid);
+    public ResponseEntity<Object> deletaAutor(@PathVariable("id") String id){
+        try {
+            UUID uuid = UUID.fromString(id);
+            Optional<Autor> optionalAutor = service.obterPorId(uuid);
 
-        if (optionalAutor.isPresent()){
-            System.out.println("Autor deletado: " + optionalAutor.get().getNome());
-            service.deletarPorId(optionalAutor.get());
-            return ResponseEntity.noContent().build();
+            if (optionalAutor.isPresent()){
+                System.out.println("Autor deletado: " + optionalAutor.get().getNome());
+                service.deletarPorId(optionalAutor.get());
+                return ResponseEntity.noContent().build();
+            }
+
+            return ResponseEntity.notFound().build();
+        } catch (OperacaoNaoPermitiaException e) {
+            ErroResposta erroDto = ErroResposta.respostaPadrao(e.getMessage());
+            return ResponseEntity.status(erroDto.status()).body(erroDto);
         }
-
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping

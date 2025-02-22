@@ -66,4 +66,6 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
             join fetch l.autor
             """)
     List<Livro> todosOsLivrosComAutor();
+
+    boolean existsByAutor(Autor autor);
 }

@@ -1,8 +1,11 @@
 package io.github.ybertoldi.libraryapi.service;
 
+import io.github.ybertoldi.libraryapi.exceptions.OperacaoNaoPermitiaException;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.repository.AutorRepository;
+import io.github.ybertoldi.libraryapi.repository.LivroRepository;
 import io.github.ybertoldi.libraryapi.validator.AutorValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,15 +14,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AutorService {
 
     private final AutorRepository autorRepository;
+    private final LivroRepository livroRepository;
     private final AutorValidator autorValidator;
-
-    public AutorService(AutorRepository autorRepository, AutorValidator autorValidator) {
-        this.autorRepository = autorRepository;
-        this.autorValidator = autorValidator;
-    }
 
     public Autor salvaAutor(Autor autor){
         autorValidator.validar(autor);
@@ -31,6 +31,10 @@ public class AutorService {
     }
 
     public void deletarPorId(Autor autor) {
+        if (possuiLivro(autor)){
+            throw new OperacaoNaoPermitiaException("Autor possui livros cadastrados. Exclua os livros antes do autor");
+        }
+
         autorRepository.delete(autor);
     }
 
@@ -57,5 +61,9 @@ public class AutorService {
         }
         autorValidator.validar(autor);
         autorRepository.save(autor);
+    }
+
+    public boolean possuiLivro(Autor autor){
+        return livroRepository.existsByAutor(autor);
     }
 }
