@@ -2,6 +2,7 @@ package io.github.ybertoldi.libraryapi.service;
 
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.repository.AutorRepository;
+import io.github.ybertoldi.libraryapi.validator.AutorValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +13,16 @@ import java.util.UUID;
 @Service
 public class AutorService {
 
-    @Autowired
-    AutorRepository autorRepository;
+    private final AutorRepository autorRepository;
+    private final AutorValidator autorValidator;
+
+    public AutorService(AutorRepository autorRepository, AutorValidator autorValidator) {
+        this.autorRepository = autorRepository;
+        this.autorValidator = autorValidator;
+    }
 
     public Autor salvaAutor(Autor autor){
+        autorValidator.validar(autor);
         return autorRepository.save(autor);
     }
 
@@ -42,5 +49,13 @@ public class AutorService {
         }
 
         return autorRepository.findAll();
+    }
+
+    public void atualizar(Autor autor) {
+        if (autor.getId() == null){
+            throw new IllegalArgumentException("Autor nao cadastrado");
+        }
+        autorValidator.validar(autor);
+        autorRepository.save(autor);
     }
 }

@@ -1,5 +1,6 @@
-package io.github.ybertoldi.libraryapi.model.DTO;
+package io.github.ybertoldi.libraryapi.controller.dto;
 import io.github.ybertoldi.libraryapi.model.Autor;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
