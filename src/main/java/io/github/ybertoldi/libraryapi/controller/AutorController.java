@@ -6,13 +6,17 @@ import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.controller.dto.AutorDTO;
 import io.github.ybertoldi.libraryapi.service.AutorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,7 +30,7 @@ public class AutorController {
     private final AutorService service;
 
     @PostMapping
-    public ResponseEntity<Object> cadastroDeAutor(@RequestBody AutorDTO autor){
+    public ResponseEntity<Object> cadastroDeAutor(@RequestBody @Valid AutorDTO autor){
         try {
             Autor autorEntidade = autor.toAutor();
             service.salvaAutor(autorEntidade);
@@ -38,7 +42,8 @@ public class AutorController {
                     .toUri();
 
             return ResponseEntity.created(uri).build();
-        } catch (RegistroDuplicadoException e) {
+        }
+        catch (RegistroDuplicadoException e) {
             ErroResposta erroDto = ErroResposta.conflito(e.getMessage());
             return ResponseEntity.status(erroDto.status()).body(erroDto);
         }
@@ -79,7 +84,8 @@ public class AutorController {
             }
 
             return ResponseEntity.notFound().build();
-        } catch (OperacaoNaoPermitiaException e) {
+        }
+        catch (OperacaoNaoPermitiaException e) {
             ErroResposta erroDto = ErroResposta.respostaPadrao(e.getMessage());
             return ResponseEntity.status(erroDto.status()).body(erroDto);
         }
@@ -107,7 +113,7 @@ public class AutorController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> atualizar(@PathVariable("id") String id, @RequestBody AutorDTO dto){
+    public ResponseEntity<Object> atualizar(@PathVariable("id") String id, @RequestBody @Valid AutorDTO dto){
         try {
             UUID uuid = UUID.fromString(id);
             Optional<Autor> optionalAutor = service.obterPorId(uuid);
