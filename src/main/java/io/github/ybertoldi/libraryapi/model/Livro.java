@@ -3,8 +3,11 @@ package io.github.ybertoldi.libraryapi.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -28,11 +31,11 @@ public class Livro {
     LocalDate dataPublicacao;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "genero", length = 30, nullable = false)
+    @Column(name = "genero", length = 30)
     GeneroLivro genero;
 
-    @Column(name = "preco", nullable = false)
-    double preco;
+    @Column(name = "preco")
+    Double preco;
 
     @ManyToOne(
             //cascade = CascadeType.ALL,  -> recomendado não usar. Descomentar para usar no LivroRepositoryTest
@@ -40,6 +43,14 @@ public class Livro {
     )
     @JoinColumn(name = "id_autor")
     private Autor autor;
+
+    @CreatedDate
+    @Column(name = "data_cadastro")
+    LocalDateTime dataCriacao;
+
+    @LastModifiedDate
+    @Column(name = "data_atualizacao")
+    LocalDateTime dataAtualizacao;
 
     public void setTo(String titulo, String isbn, GeneroLivro genero, Autor autor, double preco, LocalDate dataPublicacao){
         this.titulo = titulo;
