@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -17,6 +18,8 @@ import java.util.UUID;
  */
 
 public interface LivroRepository extends JpaRepository<Livro, UUID> {
+
+    boolean existsByIsbn(String isbn);
 
     //query method
     //selecet * from livro where id_autor = id
@@ -66,6 +69,14 @@ public interface LivroRepository extends JpaRepository<Livro, UUID> {
             join fetch l.autor
             """)
     List<Livro> todosOsLivrosComAutor();
+
+    @Query("""
+            select l 
+            from Livro l 
+            join fetch l.autor
+            where l.id = ?1
+            """)
+    Optional<Livro> livroComAutorPorId(UUID id);
 
     boolean existsByAutor(Autor autor);
 }

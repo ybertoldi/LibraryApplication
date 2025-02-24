@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.github.ybertoldi.libraryapi.controller.dto.ErroCampo;
 import io.github.ybertoldi.libraryapi.controller.dto.ErroResposta;
 import io.github.ybertoldi.libraryapi.exceptions.AutorInexistenteException;
+import io.github.ybertoldi.libraryapi.exceptions.OperacaoNaoPermitiaException;
+import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -33,8 +33,20 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AutorInexistenteException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErroResposta handleAutorInexistenteException(AutorInexistenteException e){
+        return ErroResposta.notFound(e.getMessage());
+    }
+
+    @ExceptionHandler(RegistroDuplicadoException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErroResposta handleRegistroDuplicadoException(RegistroDuplicadoException e){
+        return ErroResposta.conflito(e.getMessage());
+    }
+
+    @ExceptionHandler(OperacaoNaoPermitiaException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErroResposta handleOperacaoNaoPermitiaException(OperacaoNaoPermitiaException e){
         return ErroResposta.respostaPadrao(e.getMessage());
     }
 

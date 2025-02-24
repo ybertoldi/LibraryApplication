@@ -1,22 +1,18 @@
 package io.github.ybertoldi.libraryapi.controller;
 
+import io.github.ybertoldi.libraryapi.controller.dto.AutorDTO;
 import io.github.ybertoldi.libraryapi.controller.dto.ErroResposta;
-import io.github.ybertoldi.libraryapi.exceptions.OperacaoNaoPermitiaException;
+import io.github.ybertoldi.libraryapi.controller.mappers.AutorMapper;
 import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.ybertoldi.libraryapi.model.Autor;
-import io.github.ybertoldi.libraryapi.controller.dto.AutorDTO;
 import io.github.ybertoldi.libraryapi.service.AutorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,97 +24,76 @@ import java.util.stream.Collectors;
 public class AutorController {
 
     private final AutorService service;
+    private final AutorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> cadastroDeAutor(@RequestBody @Valid AutorDTO autor){
+    public ResponseEntity<Object> cadastroDeAutor(@RequestBody @Valid AutorDTO dto) {
         try {
-            Autor autorEntidade = autor.toAutor();
-            service.salvaAutor(autorEntidade);
+            Autor autor = mapper.dtoToAutor(dto);
+            autor = service.salvaAutor(autor);
 
             URI uri = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
-                    .buildAndExpand(autorEntidade.getId())
+                    .buildAndExpand(autor.getId())
                     .toUri();
 
             return ResponseEntity.created(uri).build();
-        }
-        catch (RegistroDuplicadoException e) {
+        } catch (RegistroDuplicadoException e) {
             ErroResposta erroDto = ErroResposta.conflito(e.getMessage());
             return ResponseEntity.status(erroDto.status()).body(erroDto);
         }
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Object> obterDetalhes(@PathVariable("id") String id){
-            UUID uuid = UUID.fromString(id);
-            Optional<Autor> autor = service.obterPorId(uuid);
+    public ResponseEntity<Object> obterDetalhes(@PathVariable("id") String id) {
+        UUID uuid = UUID.fromString(id);
+        Optional<Autor> autor = service.obterPorId(uuid);
 
-            if (autor.isPresent()){
-                Autor autor1 = autor.get();
-                AutorDTO dto = new AutorDTO(
-                        autor1.getId(),
-                        autor1.getNome(),
-                        autor1.getDataNascimento(),
-                        autor1.getNacionalidade()
-                );
+        if (autor.isPresent()) {
+            AutorDTO dto = mapper.autorToDto(autor.get());
+            return ResponseEntity.ok(dto);
+        }
 
-                System.out.println(dto);
-                return ResponseEntity.ok(dto);
-            }
-
-            return ResponseEntity.notFound().build();
+        return ResponseEntity.notFound().build();
     }
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> deletaAutor(@PathVariable("id") String id){
-        try {
-            UUID uuid = UUID.fromString(id);
-            Optional<Autor> optionalAutor = service.obterPorId(uuid);
+    public ResponseEntity<Object> deletaAutor(@PathVariable("id") String id) {
+        UUID uuid = UUID.fromString(id);
+        Optional<Autor> optionalAutor = service.obterPorId(uuid);
 
-            if (optionalAutor.isPresent()){
-                System.out.println("Autor deletado: " + optionalAutor.get().getNome());
-                service.deletarPorId(optionalAutor.get());
-                return ResponseEntity.noContent().build();
-            }
+        if (optionalAutor.isPresent()) {
+            service.deletarPorId(optionalAutor.get());
+            return ResponseEntity.noContent().build();
+        }
 
-            return ResponseEntity.notFound().build();
-        }
-        catch (OperacaoNaoPermitiaException e) {
-            ErroResposta erroDto = ErroResposta.respostaPadrao(e.getMessage());
-            return ResponseEntity.status(erroDto.status()).body(erroDto);
-        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping
     public ResponseEntity<List<AutorDTO>> pesquisar(
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "nacionalidade", required = false) String nacionalidade
-    ){
+    ) {
 
         List<Autor> pesquisa = service.pesquisaByExample(nome, nacionalidade);
         List<AutorDTO> dtos = pesquisa
                 .stream()
-                .map(
-              autor -> new AutorDTO(
-                        autor.getId(),
-                        autor.getNome(),
-                        autor.getDataNascimento(),
-                        autor.getNacionalidade())
-                ).collect(Collectors.toList());
+                .map(mapper::autorToDto)
+                .collect(Collectors.toList());
 
-        dtos.forEach(System.out::println);
         return ResponseEntity.ok(dtos);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> atualizar(@PathVariable("id") String id, @RequestBody @Valid AutorDTO dto){
+    public ResponseEntity<Object> atualizar(@PathVariable("id") String id, @RequestBody @Valid AutorDTO dto) {
         try {
             UUID uuid = UUID.fromString(id);
             Optional<Autor> optionalAutor = service.obterPorId(uuid);
 
-            if (optionalAutor.isPresent()){
+            if (optionalAutor.isPresent()) {
                 Autor autor = optionalAutor.get();
                 autor.setNacionalidade(dto.nacionalidade());
                 autor.setNome(dto.nome());

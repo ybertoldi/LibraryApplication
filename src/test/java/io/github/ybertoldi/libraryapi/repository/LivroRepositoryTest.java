@@ -1,20 +1,13 @@
 package io.github.ybertoldi.libraryapi.repository;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.model.GeneroLivro;
 import io.github.ybertoldi.libraryapi.model.Livro;
-import io.github.ybertoldi.libraryapi.model.LocalDateTypeAdapter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.*;
-import java.lang.reflect.Type;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -98,50 +91,45 @@ public class LivroRepositoryTest {
         livros.forEach(System.out::println);
     }
 
-    @Test
-    void salvarEmJsonTeste() throws IOException {
-        List<Livro> livros = repository.todosOsLivrosComAutor();
+//    @Test
+//    void salvarEmJsonTeste() throws IOException {
+//        List<Livro> livros = repository.todosOsLivrosComAutor();
+//
+//        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
+//
+//        FileWriter writer = new FileWriter(path + "\\livrosExcluidos.json");
+//    }
 
-        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
-                .setPrettyPrinting()
-                .create();
-
-        FileWriter writer = new FileWriter(path + "\\livrosExcluidos.json");
-        gson.toJson(livros, writer);
-    }
-
-    @Test
-    void deleteGeneroTest() throws IOException {
-        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
-                .setPrettyPrinting()
-                .create();
-
-        FileWriter writer = new FileWriter(path + "\\livrosExcluidos.json");
-        gson.toJson(repository.todosOsLivrosComAutor(), writer);
-
-        repository.deleteByGenero(GeneroLivro.FICCAO);
-    }
-
-    @Test
-    void inserirBackup() throws FileNotFoundException {
-        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
-                .setPrettyPrinting()
-                .create();
-
-        Type tipo = new TypeToken<ArrayList<Livro>>(){}.getType();
-        List<Livro> lista = gson.fromJson(new FileReader(path + "\\livrosExcluidos.json"), tipo);
-        for (Livro livro : lista) {
-            livro.setId(null);
-        }
-
-        repository.saveAll(lista);
-    }
+//    @Test
+//    void deleteGeneroTest() throws IOException {
+//        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
+//        Gson gson = new GsonBuilder()
+//                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+//                .setPrettyPrinting()
+//                .create();
+//
+//        FileWriter writer = new FileWriter(path + "\\livrosExcluidos.json");
+//        gson.toJson(repository.todosOsLivrosComAutor(), writer);
+//
+//        repository.deleteByGenero(GeneroLivro.FICCAO);
+//    }
+//
+//    @Test
+//    void inserirBackup() throws FileNotFoundException {
+//        String path = "C:\\Users\\Yuri\\OneDrive\\Área de Trabalho\\Estudo\\expert spring boot\\libraryapi";
+//        Gson gson = new GsonBuilder()
+//                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter())
+//                .setPrettyPrinting()
+//                .create();
+//
+//        Type tipo = new TypeToken<ArrayList<Livro>>(){}.getType();
+//        List<Livro> lista = gson.fromJson(new FileReader(path + "\\livrosExcluidos.json"), tipo);
+//        for (Livro livro : lista) {
+//            livro.setId(null);
+//        }
+//
+//        repository.saveAll(lista);
+//    }
 
 
 }
