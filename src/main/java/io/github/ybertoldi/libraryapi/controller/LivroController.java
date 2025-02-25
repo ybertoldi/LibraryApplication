@@ -1,10 +1,9 @@
 package io.github.ybertoldi.libraryapi.controller;
 
-import io.github.ybertoldi.libraryapi.controller.dto.AutorDTO;
 import io.github.ybertoldi.libraryapi.controller.dto.LivroCadastroDTO;
 import io.github.ybertoldi.libraryapi.controller.dto.LivroResultadoPesquisaDTO;
 import io.github.ybertoldi.libraryapi.controller.mappers.LivroMapper;
-import io.github.ybertoldi.libraryapi.model.Autor;
+import io.github.ybertoldi.libraryapi.model.GeneroLivro;
 import io.github.ybertoldi.libraryapi.model.Livro;
 import io.github.ybertoldi.libraryapi.service.LivroService;
 import jakarta.validation.Valid;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,27 +27,55 @@ public class LivroController {
     @PostMapping
     public ResponseEntity<Object> salvar(@RequestBody @Valid LivroCadastroDTO livroDTO){
         Livro livro = mapper.dtoToLivro(livroDTO);
-        Livro livroSalvo = service.salvar(livro);
+        service.salvar(livro);
 
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(livroSalvo.getId())
+                .buildAndExpand(livro.getId())
                 .toUri();
 
         return ResponseEntity.created(uri).build();
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<Object> pesquisaPorId(@PathVariable("id") String id){
+    public ResponseEntity<LivroResultadoPesquisaDTO> pesquisaPorId(@PathVariable("id") String id){
         UUID uuid = UUID.fromString(id);
-        Optional<Livro> optionalLivro = service.obterPorId(uuid);
-
-        if (optionalLivro.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-
-        LivroResultadoPesquisaDTO dto = mapper.livroToDto(optionalLivro.get());
-        return ResponseEntity.ok(dto);
+        return service.obterPorId(uuid)
+                .map(livro ->  ResponseEntity.ok(mapper.livroToDto(livro)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Object> deletaPorId(@PathVariable("id") UUID id){
+        return service.obterPorId(id)
+                .map(livro -> {
+                    service.deletar(id);
+                    return ResponseEntity.noContent().build();
+                }).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public ResponseEntity<List<LivroResultadoPesquisaDTO>> pesquisar(
+            @RequestParam(value = "titulo", required = false)
+            String titulo,
+            @RequestParam(value = "isbn", required = false)
+            String isbn,
+            @RequestParam(value = "anoPublicacao", required = false)
+            Integer anoPublicacao,
+            @RequestParam(value = "genero", required = false)
+            GeneroLivro genero,
+            @RequestParam(value = "nomeAutor", required = false)
+            String nomeAutor
+            ) {
+
+        List<LivroResultadoPesquisaDTO> lista =
+                service.pesquisa(titulo, isbn, anoPublicacao, genero, nomeAutor)
+                        .stream()
+                        .map(mapper::livroToDto)
+                        .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+
 }

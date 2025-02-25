@@ -12,8 +12,4 @@ public class AppConfig {
         return AutorMapper.INSTANCE;
     }
 
-    @Bean
-    public LivroMapper livroMapper(){
-        return LivroMapper.INSTANCE;
-    }
 }

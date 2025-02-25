@@ -1,9 +1,7 @@
 package io.github.ybertoldi.libraryapi.controller;
 
 import io.github.ybertoldi.libraryapi.controller.dto.AutorDTO;
-import io.github.ybertoldi.libraryapi.controller.dto.ErroResposta;
 import io.github.ybertoldi.libraryapi.controller.mappers.AutorMapper;
-import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.service.AutorService;
 import jakarta.validation.Valid;
@@ -28,21 +26,17 @@ public class AutorController {
 
     @PostMapping
     public ResponseEntity<Object> cadastroDeAutor(@RequestBody @Valid AutorDTO dto) {
-        try {
-            Autor autor = mapper.dtoToAutor(dto);
-            autor = service.salvaAutor(autor);
+        Autor autor = mapper.dtoToAutor(dto);
+        autor = service.salvaAutor(autor);
 
-            URI uri = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(autor.getId())
-                    .toUri();
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(autor.getId())
+                .toUri();
 
-            return ResponseEntity.created(uri).build();
-        } catch (RegistroDuplicadoException e) {
-            ErroResposta erroDto = ErroResposta.conflito(e.getMessage());
-            return ResponseEntity.status(erroDto.status()).body(erroDto);
-        }
+        return ResponseEntity.created(uri).build();
+
     }
 
     @GetMapping("{id}")
@@ -89,23 +83,20 @@ public class AutorController {
 
     @PutMapping("{id}")
     public ResponseEntity<Object> atualizar(@PathVariable("id") String id, @RequestBody @Valid AutorDTO dto) {
-        try {
-            UUID uuid = UUID.fromString(id);
-            Optional<Autor> optionalAutor = service.obterPorId(uuid);
 
-            if (optionalAutor.isPresent()) {
-                Autor autor = optionalAutor.get();
-                autor.setNacionalidade(dto.nacionalidade());
-                autor.setNome(dto.nome());
-                autor.setDataNascimento(dto.dataNascimento());
-                service.atualizar(autor);
-                return ResponseEntity.noContent().build();
-            }
+        UUID uuid = UUID.fromString(id);
+        Optional<Autor> optionalAutor = service.obterPorId(uuid);
 
-            return ResponseEntity.notFound().build();
-        } catch (RegistroDuplicadoException e) {
-            ErroResposta erroDto = ErroResposta.conflito(e.getMessage());
-            return ResponseEntity.status(erroDto.status()).body(erroDto);
+        if (optionalAutor.isPresent()) {
+            Autor autor = optionalAutor.get();
+            autor.setNacionalidade(dto.nacionalidade());
+            autor.setNome(dto.nome());
+            autor.setDataNascimento(dto.dataNascimento());
+            service.atualizar(autor);
+            return ResponseEntity.noContent().build();
         }
+
+        return ResponseEntity.notFound().build();
+
     }
 }

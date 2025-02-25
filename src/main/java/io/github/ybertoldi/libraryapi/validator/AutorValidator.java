@@ -3,18 +3,15 @@ package io.github.ybertoldi.libraryapi.validator;
 import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.repository.AutorRepository;
-import io.github.ybertoldi.libraryapi.repository.LivroRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AutorValidator {
 
-    private AutorRepository autorRepository;
-    private LivroRepository livroRepository;
+    private final AutorRepository autorRepository;
 
-    public AutorValidator(AutorRepository repository, LivroRepository livroRepository) {
+    public AutorValidator(AutorRepository repository) {
         this.autorRepository = repository;
-        this.livroRepository = livroRepository;
     }
 
     public void validar(Autor autor){
