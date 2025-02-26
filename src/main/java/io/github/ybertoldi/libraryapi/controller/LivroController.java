@@ -66,11 +66,15 @@ public class LivroController {
             @RequestParam(value = "genero", required = false)
             GeneroLivro genero,
             @RequestParam(value = "nomeAutor", required = false)
-            String nomeAutor
+            String nomeAutor,
+            @RequestParam(value = "anoInicio", required = false)
+            Integer anoInicio,
+            @RequestParam(value = "anoFim", required = false)
+            Integer anoFim
             ) {
 
         List<LivroResultadoPesquisaDTO> lista =
-                service.pesquisa(titulo, isbn, anoPublicacao, genero, nomeAutor)
+                service.pesquisa(titulo, isbn, anoPublicacao, genero, nomeAutor, anoInicio, anoFim)
                         .stream()
                         .map(mapper::livroToDto)
                         .toList();
