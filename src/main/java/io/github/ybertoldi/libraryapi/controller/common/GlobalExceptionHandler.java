@@ -5,6 +5,7 @@ import io.github.ybertoldi.libraryapi.controller.dto.ErroCampo;
 import io.github.ybertoldi.libraryapi.controller.dto.ErroResposta;
 import io.github.ybertoldi.libraryapi.exceptions.AutorInexistenteException;
 import io.github.ybertoldi.libraryapi.exceptions.OperacaoNaoPermitiaException;
+import io.github.ybertoldi.libraryapi.exceptions.CampoInvalidoException;
 import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
@@ -46,7 +47,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OperacaoNaoPermitiaException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErroResposta handleOperacaoNaoPermitiaException(OperacaoNaoPermitiaException e){
+    public ErroResposta handleOperacaoNaoPermitidaException(OperacaoNaoPermitiaException e){
         return ErroResposta.respostaPadrao(e.getMessage());
     }
 
@@ -62,5 +63,12 @@ public class GlobalExceptionHandler {
                 "Incapaz de ler a requisicao HTTP",
                 List.of(erroCampo)
         );
+    }
+
+    @ExceptionHandler(CampoInvalidoException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErroResposta handleCampoInvalidoException(CampoInvalidoException e){
+        ErroCampo erroCampo = new ErroCampo(e.getCampo(), e.getMensagem());
+        return new ErroResposta(HttpStatus.BAD_REQUEST.value(), e.getMessage(), List.of(erroCampo));
     }
 }

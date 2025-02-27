@@ -1,6 +1,7 @@
 package io.github.ybertoldi.libraryapi.service;
 
 import io.github.ybertoldi.libraryapi.exceptions.AutorInexistenteException;
+import io.github.ybertoldi.libraryapi.exceptions.CampoInvalidoException;
 import io.github.ybertoldi.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.ybertoldi.libraryapi.model.Autor;
 import io.github.ybertoldi.libraryapi.model.GeneroLivro;
@@ -8,11 +9,12 @@ import io.github.ybertoldi.libraryapi.model.Livro;
 import io.github.ybertoldi.libraryapi.repository.AutorRepository;
 import io.github.ybertoldi.libraryapi.repository.LivroRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import static io.github.ybertoldi.libraryapi.repository.specs.LivroSpecs.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +42,9 @@ public class LivroService {
         if (livroRepository.existsByIsbn(livro.getIsbn())){
             throw new RegistroDuplicadoException("Isbn já consta no banco");
         }
+        if(livro.getPreco() == null && livro.getDataPublicacao().getYear() >= 2020){
+            throw new CampoInvalidoException("preco","todo livro a partir de 2020 deve ter o preço informado");
+        }
 
         return livroRepository.save(livro);
     }
@@ -52,7 +57,7 @@ public class LivroService {
             livroRepository.deleteById(id);
     }
 
-    public List<Livro> pesquisa(String titulo, String isbn, Integer anoPublicacao, GeneroLivro genero, String nomeAutor, Integer anoInicio, Integer anoFim) {
+    public Page<Livro> pesquisa(String titulo, String isbn, Integer anoPublicacao, GeneroLivro genero, String nomeAutor, Integer anoInicio, Integer anoFim, Pageable pageable) {
 
 //        USANDO FILTER
 //
@@ -127,6 +132,6 @@ public class LivroService {
         }
 
         // Realiza a consulta com as Specifications combinadas
-        return livroRepository.findAll(specification);
+        return livroRepository.findAll(specification, pageable);
     }
 }

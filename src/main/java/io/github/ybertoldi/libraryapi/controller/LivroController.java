@@ -8,12 +8,14 @@ import io.github.ybertoldi.libraryapi.model.Livro;
 import io.github.ybertoldi.libraryapi.service.LivroService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -56,30 +58,45 @@ public class LivroController {
     }
 
     @GetMapping
-    public ResponseEntity<List<LivroResultadoPesquisaDTO>> pesquisar(
+    public ResponseEntity<Page<LivroResultadoPesquisaDTO>> pesquisar(
             @RequestParam(value = "titulo", required = false)
             String titulo,
             @RequestParam(value = "isbn", required = false)
             String isbn,
-            @RequestParam(value = "anoPublicacao", required = false)
+            @RequestParam(value = "ano-publicacao", required = false)
             Integer anoPublicacao,
             @RequestParam(value = "genero", required = false)
             GeneroLivro genero,
-            @RequestParam(value = "nomeAutor", required = false)
+            @RequestParam(value = "nome-autor", required = false)
             String nomeAutor,
-            @RequestParam(value = "anoInicio", required = false)
+            @RequestParam(value = "ano-inicio", required = false)
             Integer anoInicio,
-            @RequestParam(value = "anoFim", required = false)
-            Integer anoFim
+            @RequestParam(value = "ano-fim", required = false)
+            Integer anoFim,
+            @PageableDefault(size = 10, sort = "titulo")
+            Pageable pageable
             ) {
 
-        List<LivroResultadoPesquisaDTO> lista =
-                service.pesquisa(titulo, isbn, anoPublicacao, genero, nomeAutor, anoInicio, anoFim)
-                        .stream()
-                        .map(mapper::livroToDto)
-                        .toList();
+        Page<Livro> pagina = service.pesquisa(titulo, isbn, anoPublicacao, genero, nomeAutor, anoInicio, anoFim, pageable);
+        return ResponseEntity.ok(pagina.map(mapper::livroToDto));
+    }
 
-        return ResponseEntity.ok(lista);
+    @PutMapping("{id}")
+    public ResponseEntity<Void> atualizar(
+            @PathVariable("id") String id, @RequestBody @Valid LivroCadastroDTO dto){
+        UUID uuid = UUID.fromString(id);
+        Livro livro = service.obterPorId(uuid).orElse(null);
+        if (livro == null) {return ResponseEntity.notFound().build();}
+
+        livro.setTitulo(dto.titulo());
+        livro.setIsbn(dto.isbn());
+        livro.setGenero(dto.genero());
+        livro.setPreco(dto.preco());
+        livro.setAutor(service.obterAutor(dto.idAutor()));
+        livro.setDataPublicacao(dto.dataPublicacao());
+
+        service.salvar(livro);
+        return ResponseEntity.noContent().build();
     }
 
 }
