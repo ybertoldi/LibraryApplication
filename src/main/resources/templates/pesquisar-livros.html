@@ -52,7 +52,19 @@
     </form>
     <div class="mt-4">
         <h4>Resultados</h4>
-        <ul id="livros-lista" class="list-group"></ul>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Gênero</th>
+                <th>Data de Publicação</th>
+                <th>ISBN</th>
+                <th>Preço (R$)</th>
+            </tr>
+            </thead>
+            <tbody id="livros-lista"></tbody>
+        </table>
     </div>
 </div>
 <script>
@@ -73,10 +85,23 @@
                 const lista = document.getElementById('livros-lista');
                 lista.innerHTML = '';
                 data.content.forEach(livro => {
-                    const item = document.createElement('li');
-                    item.classList.add('list-group-item');
-                    item.textContent = `${livro.titulo} - ${livro.autor.nome} (${livro.dataPublicacao})`;
-                    lista.appendChild(item);
+                    const tr = document.createElement('tr');
+
+                    const dataPublicacao = new Date(livro.dataPublicacao);
+                    const dataFormatada = `${dataPublicacao.getDate().toString().padStart(2, '0')}/${(dataPublicacao.getMonth() + 1).toString().padStart(2, '0')}/${dataPublicacao.getFullYear()}`;
+
+                    const precoFormatado = livro.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                    tr.innerHTML = `
+                        <td>${livro.titulo}</td>
+                        <td>${livro.autor.nome}</td>
+                        <td>${livro.genero}</td>
+                        <td>${dataFormatada}</td>
+                        <td>${livro.isbn}</td>
+                        <td>${precoFormatado}</td>
+                    `;
+
+                    lista.appendChild(tr);
                 });
             })
             .catch(error => console.error('Erro ao buscar livros:', error));
